@@ -1,0 +1,15 @@
+{
+    "gateway": "10.1.0.1",
+    "interfaces": [
+        {
+            "ip": "10.1.0.2",
+            "masklen": "24",
+            "name": "tap11",
+            "type": "rumpfd"
+        }
+    ],
+    "debug": "1",
+    "singlecpu": "1",
+    "delay_main": "50000",
+
+}

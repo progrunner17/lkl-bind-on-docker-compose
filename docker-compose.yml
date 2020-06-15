@@ -1,0 +1,61 @@
+---
+version: "2.4"
+
+services:
+  primary:
+    image: runu-named-for-zone-transfer:latest
+    build:
+      context: $PWD/primary/
+      dockerfile: $PWD/primary/Dockerfile
+    command: true
+    runtime: "runu-dev"
+    network_mode: "none"
+    environment:
+      LKL_NET: tap11
+      LKL_CONFIG: $PWD/primary/lkl.json
+      LKL_USE_9PFS: 1
+    command: named -c /etc/bind/named.conf -g
+    container_name: "primary"
+  secondary:
+    build:
+      context: $PWD/secondary
+      dockerfile: $PWD/secondary/Dockerfile
+      labels: []
+    image: bind:latest
+    command: ["/usr/sbin/named", "-g", "-u", "named", "-c", "/etc/bind/named.conf"]
+    container_name: "secondary"
+    expose:
+      - "53"
+    networks:
+      default:
+      bind_net:
+        ipv4_address: 10.1.0.3
+    volumes:
+    - ./secondary/named.conf:/etc/bind/named.conf:ro #long syntax may be better
+    - ./secondary/:/var/bind/mnt
+  client:
+    image: bind:latest
+    command: ["sh"]
+    runtime: "runc"
+    networks:
+      bind_net:
+        ipv4_address: 10.1.0.10
+    tty: true
+    stdin_open: true
+    container_name: client
+    dns:
+      - 10.1.0.2
+    dns_search:
+      - example.jp
+networks:
+  bind_net:
+    driver: bridge
+    # enable_ipv6: true
+    internal: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 10.1.0.0/24
+          gateway: 10.1.0.1
+        #        - subnet: 2001::/64
+        #          gateway: 2001::1

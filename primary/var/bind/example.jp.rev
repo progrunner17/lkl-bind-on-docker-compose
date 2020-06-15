@@ -1,0 +1,22 @@
+; vim: set ft=dns :
+; $ORIGIN example.jp. ; 設定するドメイン名を指定
+$TTL 86400          ; デフォルトのTTLを1日にする（“1D”のようにも記述可能）
+; SOA レコード
+;
+; postmaster@example.jp が管理者のメールアドレス
+@       IN      SOA     ns1.example.jp. postmaster.example.jp. (
+                        2014120901      ; Serial, YYYYMMDDNN
+                        3600               ; Refresh
+                        900                ; Retry
+                        1814400          ; Expire
+                        900 )              ; Minimum
+
+        IN      NS      ns1.example.jp.
+        IN      NS      ns2.example.jp.
+2       IN      PTR     ns1
+3       IN      PTR     ns2
+10      IN      PTR     client
+101     IN      PTR     test1
+102     IN      PTR     test2
+103     IN      PTR     test3
+

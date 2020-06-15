@@ -1,0 +1,8 @@
+#!/bin/bash
+set -eux
+
+
+docker exec client nslookup test5.example.jp 10.1.0.2
+docker exec client nslookup test5.example.jp ns1.example.jp
+docker exec client nslookup test5.example.jp 10.1.0.3
+docker exec client nslookup test5.example.jp ns2.example.jp

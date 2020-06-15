@@ -1,0 +1,35 @@
+#!/bin/bash
+set -eux
+
+TAPDEV=tap11
+
+cat > ./primary/lkl.json <<-EOF
+{
+    "gateway": "10.1.0.1",
+    "interfaces": [
+        {
+            "ip": "10.1.0.2",
+            "masklen": "24",
+            "name": "${TAPDEV}",
+            "type": "rumpfd"
+        }
+    ],
+    "debug": "1",
+    "singlecpu": "1",
+    "delay_main": "50000",
+
+}
+EOF
+
+if ! [ -e "/sys/class/net/${TAPDEV}" ]; then
+  sudo ip tuntap add mode tap ${TAPDEV}
+fi
+
+make -C secondary
+docker-compose up -d
+sudo ip link set up dev ${TAPDEV}
+if !(brctl show | grep ${TAPDEV} >/dev/null 2>/dev/null );then
+  bridge=br-$(docker network inspect $(basename ${PWD})_bind_net  --format "{{.Id}}" | head -c 12)
+  sudo brctl addif ${bridge} ${TAPDEV}
+fi
+
